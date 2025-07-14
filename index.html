@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Media Growth Forecast</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    label, input, select {
+      margin: 10px 0;
+      display: block;
+    }
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Social Media Growth Forecast</h1>
+
+  <label for="current">Current Followers:</label>
+  <input type="number" id="current" value="2600" />
+
+  <label for="growth">Followers Gained in Last 90 Days:</label>
+  <input type="number" id="growth" value="176" />
+
+  <label for="target">Target Followers:</label>
+  <input type="number" id="target" value="10000" />
+
+  <label for="multiplier">Growth Rate Multiplier (1x = current, 2x, 5x, 10x):</label>
+  <select id="multiplier">
+    <option value="1">1x</option>
+    <option value="2">2x</option>
+    <option value="5">5x</option>
+    <option value="10">10x</option>
+  </select>
+
+  <button onclick="calculateGrowth()">Calculate</button>
+
+  <div class="result" id="output"></div>
+
+  <script>
+    function calculateGrowth() {
+      const current = parseInt(document.getElementById('current').value);
+      const growth = parseInt(document.getElementById('growth').value);
+      const target = parseInt(document.getElementById('target').value);
+      const multiplier = parseFloat(document.getElementById('multiplier').value);
+
+      const dailyGrowth = (growth / 90) * multiplier;
+      const followersNeeded = target - current;
+      const daysRequired = Math.ceil(followersNeeded / dailyGrowth);
+
+      const output = `
+        <p><strong>Daily Growth Rate:</strong> ${dailyGrowth.toFixed(2)} followers/day</p>
+        <p><strong>Days to Reach ${target} Followers at ${multiplier}x Rate:</strong> ${daysRequired} days (~${(daysRequired / 30).toFixed(1)} months)</p>
+      `;
+
+      document.getElementById('output').innerHTML = output;
+    }
+  </script>
+</body>
+</html>
