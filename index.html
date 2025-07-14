@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Social Media Growth Forecast</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,21 +17,25 @@
     .result {
       margin-top: 20px;
     }
+    canvas {
+      max-width: 600px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <h1>Social Media Growth Forecast</h1>
 
   <label for="current">Current Followers:</label>
-  <input type="number" id="current" value="2600" />
+  <input type="number" id="current" placeholder="Enter current followers" />
 
   <label for="growth">Followers Gained in Last 90 Days:</label>
-  <input type="number" id="growth" value="176" />
+  <input type="number" id="growth" placeholder="Enter followers gained in last 90 days" />
 
   <label for="target">Target Followers:</label>
-  <input type="number" id="target" value="10000" />
+  <input type="number" id="target" placeholder="Enter target followers" />
 
-  <label for="multiplier">Growth Rate Multiplier (1x = current, 2x, 5x, 10x):</label>
+  <label for="multiplier">Growth Rate Multiplier:</label>
   <select id="multiplier">
     <option value="1">1x</option>
     <option value="2">2x</option>
@@ -41,13 +46,21 @@
   <button onclick="calculateGrowth()">Calculate</button>
 
   <div class="result" id="output"></div>
+  <canvas id="growthChart"></canvas>
 
   <script>
+    let chart;
+
     function calculateGrowth() {
       const current = parseInt(document.getElementById('current').value);
       const growth = parseInt(document.getElementById('growth').value);
       const target = parseInt(document.getElementById('target').value);
       const multiplier = parseFloat(document.getElementById('multiplier').value);
+
+      if (isNaN(current) || isNaN(growth) || isNaN(target)) {
+        alert('Please enter all values.');
+        return;
+      }
 
       const dailyGrowth = (growth / 90) * multiplier;
       const followersNeeded = target - current;
@@ -55,10 +68,56 @@
 
       const output = `
         <p><strong>Daily Growth Rate:</strong> ${dailyGrowth.toFixed(2)} followers/day</p>
-        <p><strong>Days to Reach ${target} Followers at ${multiplier}x Rate:</strong> ${daysRequired} days (~${(daysRequired / 30).toFixed(1)} months)</p>
+        <p><strong>Days to Reach ${target} Followers:</strong> ${daysRequired} days (~${(daysRequired / 30).toFixed(1)} months)</p>
       `;
 
       document.getElementById('output').innerHTML = output;
+
+      const labels = Array.from({ length: daysRequired + 1 }, (_, i) => i);
+      const data = labels.map(day => Math.min(current + dailyGrowth * day, target));
+
+      const ctx = document.getElementById('growthChart').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Projected Followers Over Time',
+            data: data,
+            fill: false,
+            borderColor: 'blue',
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: true
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Days'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Followers'
+              }
+            }
+          }
+        }
+      });
     }
   </script>
 </body>
